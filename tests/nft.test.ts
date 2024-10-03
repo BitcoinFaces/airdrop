@@ -19,8 +19,8 @@ const transfer = (id: number, from: string, to: string, sender: string) => {
   return tx.callPublicFn(CONTRACT, "transfer", [uintCV(id), principalCV(from), principalCV(to)], sender)
 }
 
-const mint = (sender: string) => {
-  return tx.callPublicFn(CONTRACT, "mint", [], sender)
+const mint = (to: string) => {
+  return tx.callPublicFn(CONTRACT, "mint", [principalCV(to)], simnet.deployer)
 }
 
 

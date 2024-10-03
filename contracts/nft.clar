@@ -19,9 +19,9 @@
   )
 )
 
-(define-public (mint)
+(define-public (mint (to principal))
   (let ((id (var-get nextId)))
-    (is-err (nft-mint? nft id tx-sender))
+    (is-err (nft-mint? nft id to))
     (ok (var-set nextId (+ id u1)))
   )
 )
