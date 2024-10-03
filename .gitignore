@@ -11,3 +11,7 @@ coverage
 *.info
 costs-reports.json
 node_modules
+
+bun.lockb
+yarn.lock
+package-lock.json
