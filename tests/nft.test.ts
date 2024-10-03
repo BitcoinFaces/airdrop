@@ -19,8 +19,8 @@ const transfer = (id: number, from: string, to: string, sender: string) => {
   return tx.callPublicFn(CONTRACT, "transfer", [uintCV(id), principalCV(from), principalCV(to)], sender)
 }
 
-const mint = (to: string) => {
-  return tx.callPublicFn(CONTRACT, "mint", [principalCV(to)], simnet.deployer)
+const mint = (to: string, sender: string | string = simnet.deployer) => {
+  return tx.callPublicFn(CONTRACT, "mint", [principalCV(to)], sender)
 }
 
 
@@ -44,6 +44,36 @@ describe("get-last-token-id", () => {
 });
 
 describe("mint", () => {
+  it("fails when called by someone who is not contract deployer", () => {
+    const tx = mint(address1, address1);
+    const result = simnet.mineBlock([tx])[0].result
+
+    expect(result).toBeErr(uintCV(401));
+  })
+
+  it("succeeds when called by anyone via proxy contract deployed by same address as NFT contract deployer", () => {
+    const t1 = tx.callPublicFn("proxy", "mint", [principalCV(address1)], address1);
+    const t2 = tx.callPublicFn("proxy", "mint", [principalCV(address1)], simnet.deployer);
+
+    const block = simnet.mineBlock([t1, t2]);
+
+    expect(block[0].result).toBeOk(boolCV(true));
+    expect(block[1].result).toBeOk(boolCV(true));
+
+    expect(getOwner(1)).toBeOk(someCV(principalCV(address1)))
+    expect(getOwner(2)).toBeOk(someCV(principalCV(address1)))
+  })
+
+  it("fails when called by anyone via proxy contract deployed by different address than NFT contract deployer", () => {
+    const t1 = tx.callPublicFn(`${address1}.external-proxy`, "mint", [principalCV(address1)], address1);
+    const t2 = tx.callPublicFn(`${address1}.external-proxy`, "mint", [principalCV(address1)], simnet.deployer);
+
+    const block = simnet.mineBlock([t1, t2]);
+
+    expect(block[0].result).toBeErr(uintCV(401));
+    expect(block[1].result).toBeErr(uintCV(401));
+  })
+
   it("mints new NFT to transaction sender", () => {
     const t1 = mint(simnet.deployer);
     const t2 = mint(address1);
