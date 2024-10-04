@@ -40,7 +40,7 @@
   )
 )
 
-(define-public (airdrop (l1 (list 5000 principal)) (l2 (list 5000 principal)) (l3 (list 4996 principal)))
+(define-public (airdrop (l1 (list 5000 principal)) (l2 (list 5000 principal)) (l3 (list 4995 principal)))
   (if (is-eq DEPLOYER (get-standard-caller))
     (ok (var-set nextId (fold drop l3 (fold drop l2 (fold drop l1 (var-get nextId))))))
     (err u401)
