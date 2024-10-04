@@ -12,9 +12,9 @@
 (define-read-only (get-owner (id uint)) (ok (nft-get-owner? nft id)))
 
 (define-public (transfer (id uint) (from principal) (to principal))
-  (begin
-    (asserts! (or (is-eq from tx-sender) (is-eq from contract-caller)) (err u4))
+  (if (or (is-eq from tx-sender) (is-eq from contract-caller))
     (nft-transfer? nft id from to)
+    (err u4)
   )
 )
 
