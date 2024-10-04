@@ -102,7 +102,7 @@ export class Executor {
 
         console.info(`- Pending TX: ${this.pendingTxs}`)
         console.info(`- Next nonce: ${this.nonce}`)
-        
+
         console.info("STARTING AIRDROP LOOP");
         while (this.pendingTxs < this.maxPendingTx || this.hasMissingNonce) {
             console.info("Preparing new batch")
@@ -113,11 +113,16 @@ export class Executor {
                 break;
             }
 
-            const newTransaction = await this.createTransaction(newBatch);
+            const newTransaction = await this.createTransaction(newBatch.lists);
 
             console.info("- Sending new transaction...")
             const result = await retryPromise(broadcastTransaction(newTransaction, this.network));
+
             console.info(`- TXID: ${result.txid}`)
+            console.info(`- Updating source.csv and done.csv files...`)
+
+            await writeDone(newBatch.done);
+            await writeSource(newBatch.pending);
 
             await sleep(3000);
             await this.refreshPendingTx();
@@ -126,7 +131,7 @@ export class Executor {
     }
 }
 
-async function readSource() {
+async function readSource(maxLines: number) {
     const filePath = path.resolve(__dirname, '../files/source.csv');
 
     const lineReader = readline.createInterface({
@@ -137,6 +142,7 @@ async function readSource() {
     for await (const line of lineReader) {
         lines.push(line)
     }
+    lineReader.close();
     console.info(`- Read ${lines.length} addresses from source file`)
 
     return lines
@@ -165,7 +171,7 @@ async function getNextBatch(size: number) {
 
     let count = 0;
 
-    let pending = await readSource();
+    let pending = await readSource(size);
     let done = []
 
     for (var i = 0; i < 5000; i++) {
@@ -204,11 +210,13 @@ async function getNextBatch(size: number) {
         }
     }
 
-    await writeDone(done);
-    await writeSource(pending);
-
     console.info(`- New Batch: L1: ${l1.length}, L2: ${l2.length}, L3: ${l3.length}`)
 
-    return { l1: listCV(l1), l2: listCV(l2), l3: listCV(l3), total: l1.length + l2.length + l3.length }
+    return {
+        lists: { l1: listCV(l1), l2: listCV(l2), l3: listCV(l3) },
+        total: l1.length + l2.length + l3.length,
+        done: done,
+        pending: pending
+    }
 }
 
