@@ -45,9 +45,10 @@ export class Executor {
         }
         this.batchSize = cfg.batchSize
 
-        console.info(
-            `Executor will use: ${this.address}, fee: ${this.fee} uSTX, batchSize: ${this.batchSize}`
-        );
+        console.info("EXECUTOR CONFIG")
+        console.info(`- Address: ${this.address}`)
+        console.info(`- Fee: ${this.fee} uSTX`)
+        console.info(`- Batch size: ${this.batchSize} TX`)
     }
 
     private async refreshNonce() {
@@ -99,22 +100,24 @@ export class Executor {
         await this.refreshPendingTx();
         await this.refreshNonce();
 
-        console.info(`${this.address}: ${this.pendingTxs} pending TX, next nonce: ${this.nonce}`)
-
+        console.info(`- Pending TX: ${this.pendingTxs}`)
+        console.info(`- Next nonce: ${this.nonce}`)
+        
+        console.info("STARTING AIRDROP LOOP");
         while (this.pendingTxs < this.maxPendingTx || this.hasMissingNonce) {
             console.info("Preparing new batch")
             const newBatch = await getNextBatch(this.batchSize)
 
             if (newBatch.total === 0) {
-                console.info("DONE!!!");
+                console.info("AIRDROP COMPLETE!");
                 break;
             }
 
             const newTransaction = await this.createTransaction(newBatch);
 
-            console.info("Sending new transaction...")
+            console.info("- Sending new transaction...")
             const result = await retryPromise(broadcastTransaction(newTransaction, this.network));
-            console.info(result)
+            console.info(`- TXID: ${result.txid}`)
 
             await sleep(3000);
             await this.refreshPendingTx();
@@ -134,6 +137,7 @@ async function readSource() {
     for await (const line of lineReader) {
         lines.push(line)
     }
+    console.info(`- Read ${lines.length} addresses from source file`)
 
     return lines
 }
@@ -203,7 +207,7 @@ async function getNextBatch(size: number) {
     await writeDone(done);
     await writeSource(pending);
 
-    console.info(`New Batch: L1: ${l1.length}, L2: ${l2.length}, L3: ${l3.length}`)
+    console.info(`- New Batch: L1: ${l1.length}, L2: ${l2.length}, L3: ${l3.length}`)
 
     return { l1: listCV(l1), l2: listCV(l2), l3: listCV(l3), total: l1.length + l2.length + l3.length }
 }

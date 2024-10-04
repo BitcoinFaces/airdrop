@@ -6,8 +6,8 @@ export const retryPromise = async <T>(
     try {
         return await fn;
     } catch (err: any) {
-        console.info("Retrying promise.");
-        console.info(err);
+        console.info(`- Retrying broadcast, timeout ${delay}ms`);
+        console.info(`- Error: ${String(err)}`);
         await new Promise((resolve) => setTimeout(resolve, delay));
         if (maxTries == 0) {
             throw new Error(err.message);

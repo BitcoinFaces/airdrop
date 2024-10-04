@@ -6,6 +6,8 @@ import { Signer } from "./signer";
 import { Executor } from "./executor";
 
 const main = async () => {
+    console.info("INITIALIZING AIRDROP");
+
     if (config.SeedKey === "") {
         console.error("SEED_KEY environment variable is not set");
         process.exit(1);
@@ -31,12 +33,13 @@ const main = async () => {
         }
     }
 
-    console.info("Preparing signer");
+    console.info("- Preparing signer");
     const signer = await Signer.create(config.SeedKey, "");
 
-    console.info(`Initializing connection with: ${network.coreApiUrl}`)
+    console.info(`- Initializing connection with: ${network.coreApiUrl}`)
     const api = new Api(network);
 
+    console.info("- Initializing executor");
     const executor = new Executor({
         network: network,
         signer: signer,
