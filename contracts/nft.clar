@@ -3,12 +3,12 @@
 (define-constant DEPLOYER tx-sender)
 
 (define-data-var nextId uint u1)
-(define-data-var domain (string-ascii 216) "http://dummy.com/id=")
+(define-data-var url (string-ascii 216) "https://nft-ad-1.aibtc.dev/aibtcdev-1.json")
 
 (define-non-fungible-token aibtcdev-1 uint)
 
 (define-read-only (get-last-token-id) (ok (- (var-get nextId) u1)))
-(define-read-only (get-token-uri (id uint)) (ok (some (concat (var-get domain) (int-to-ascii id)))))
+(define-read-only (get-token-uri (id uint)) (ok (some (var-get url) )))
 (define-read-only (get-owner (id uint)) (ok (nft-get-owner? aibtcdev-1 id)))
 
 (define-public (transfer (id uint) (from principal) (to principal))
@@ -33,9 +33,9 @@
   )
 )
 
-(define-public (set-domain (new (string-ascii 216)))
+(define-public (set-url (new (string-ascii 216)))
   (if (is-eq DEPLOYER (get-standard-caller))
-    (ok (var-set domain new))
+    (ok (var-set url new))
     (err u401)
   )
 )
