@@ -56,7 +56,7 @@ export class Executor {
         if (nonces.possible_next_nonce > this.nonce) {
             this.nonce = nonces.possible_next_nonce;
         }
-        console.info(nonces)
+
         if (nonces.detected_missing_nonces.length > 0) {
             this.hasMissingNonce = true;
             console.warn("Detected missing nonces");
