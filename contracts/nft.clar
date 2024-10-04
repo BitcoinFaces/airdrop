@@ -27,9 +27,9 @@
 )
 
 (define-public (set-domain (new (string-ascii 216)))
-  (begin 
-    (asserts! (is-eq DEPLOYER (get-standard-caller)) (err u401))
+  (if (is-eq DEPLOYER (get-standard-caller))
     (ok (var-set domain new))
+    (err u401)
   )
 )
 
