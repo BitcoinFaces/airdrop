@@ -42,7 +42,8 @@ const main = async () => {
         signer: signer,
         accountId: 0,
         fee: 250,
-        maxPendigTx: 3
+        maxPendigTx: 3,
+        batchSize: 8000
     });
 
     api.subscribeBlocks(async (_) => {
