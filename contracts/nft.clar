@@ -18,6 +18,13 @@
   )
 )
 
+(define-public (burn (id uint) (from principal))
+  (if (or (is-eq from tx-sender) (is-eq from contract-caller))
+    (nft-burn? nft id from)
+    (err u4)
+  )
+)
+
 (define-public (mint (to principal))
   (let ((id (var-get nextId)))
     (asserts! (is-eq DEPLOYER (get-standard-caller)) (err u401))
