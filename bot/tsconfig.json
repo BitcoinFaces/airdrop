@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "outDir": "./target",
+        "target": "ESNext",
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+        "alwaysStrict": true,
+        "strict": true,
+        "preserveConstEnums": true,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "emitDeclarationOnly": true,
+        "declaration": true,
+        "noImplicitReturns": true
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx"
+    ],
+    "exclude": [
+        "target"
+    ]
+}
