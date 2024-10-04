@@ -34,9 +34,9 @@
 )
 
 (define-public (airdrop (l1 (list 7084 principal)) (l2 (list 7084 principal)))
-  (begin 
-    (asserts! (is-eq DEPLOYER (get-standard-caller)) (err u401))
+  (if (is-eq DEPLOYER (get-standard-caller))
     (ok (var-set nextId (fold drop l2 (fold drop l1 (var-get nextId)))))
+    (err u401)
   )
 )
 
