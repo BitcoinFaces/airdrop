@@ -3,7 +3,7 @@
 (define-constant DEPLOYER tx-sender)
 
 (define-data-var nextId uint u1)
-(define-data-var url (string-ascii 216) "https://nft-ad-1.aibtc.dev/aibtcdev-1.json")
+(define-data-var url (string-ascii 256) "https://nft-ad-1.aibtc.dev/aibtcdev-1.json")
 
 (define-non-fungible-token aibtcdev-1 uint)
 
@@ -33,7 +33,7 @@
   )
 )
 
-(define-public (set-url (new (string-ascii 216)))
+(define-public (set-url (new (string-ascii 256)))
   (if (is-eq DEPLOYER (get-standard-caller))
     (ok (var-set url new))
     (err u401)
