@@ -13,7 +13,7 @@ export interface ExecutorConfig {
     signer: Signer;
     accountId: number;
     fee: number;
-    maxPendigTx: number;
+    maxPendingTx: number;
     batchSize: number;
 }
 
@@ -38,7 +38,7 @@ export class Executor {
         this.address = getStxAddress({ account: this.signer.getAccount(this.accountId), transactionVersion: this.network.version });
 
         this.fee = cfg.fee;
-        this.maxPendingTx = cfg.maxPendigTx;
+        this.maxPendingTx = cfg.maxPendingTx;
         if (cfg.batchSize > 14995) {
             console.error("batchSize can't be greater than 14995");
             process.exit(1);

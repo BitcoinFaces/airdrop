@@ -42,7 +42,7 @@ const main = async () => {
         signer: signer,
         accountId: 0,
         fee: 500000,
-        maxPendigTx: 3,
+        maxPendingTx: 3,
         batchSize: 14995
     });
 
