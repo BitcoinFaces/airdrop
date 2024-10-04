@@ -70,3 +70,15 @@ export async function fetchAccountMempoolTransactions(network: StacksNetwork, ad
 
     return json
 }
+
+export async function fetchAccountNonces(network: StacksNetwork, address: String) {
+    const url = `${network.coreApiUrl}/extended/v1/address/${address}/nonces`
+
+    const requestHeaders: HeadersInit = new Headers();
+    requestHeaders.set('Content-Type', 'application/json');
+
+    const response = await fetch(url, { headers: requestHeaders, method: "GET" });
+    const json = await response.json()
+
+    return json
+}

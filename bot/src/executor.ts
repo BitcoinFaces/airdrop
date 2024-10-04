@@ -5,8 +5,8 @@ import { StacksNetwork } from "@stacks/network";
 import { Signer } from "./signer";
 import { getStxAddress } from "@stacks/wallet-sdk";
 import { retryPromise, sleep } from "./utils";
-import { AnchorMode, broadcastTransaction, callReadOnlyFunction, cvToValue, getNonce, ListCV, listCV, makeContractCall, PostConditionMode, principalCV, UIntCV } from "@stacks/transactions";
-import { fetchAccountMempoolTransactions } from "./api";
+import { AnchorMode, broadcastTransaction, ListCV, listCV, makeContractCall, PostConditionMode, principalCV, UIntCV } from "@stacks/transactions";
+import { fetchAccountMempoolTransactions, fetchAccountNonces } from "./api";
 
 export interface ExecutorConfig {
     network: StacksNetwork,
@@ -27,6 +27,7 @@ export class Executor {
     private maxPendingTx: number;
     private pendingTxs = 0;
     private batchSize: number;
+    private hasMissingNonce = false;
 
 
     constructor(cfg: ExecutorConfig) {
@@ -38,6 +39,10 @@ export class Executor {
 
         this.fee = cfg.fee;
         this.maxPendingTx = cfg.maxPendigTx;
+        if (cfg.batchSize > 14995) {
+            console.error("batchSize can't be greater than 14995");
+            process.exit(1);
+        }
         this.batchSize = cfg.batchSize
 
         console.info(
@@ -46,13 +51,26 @@ export class Executor {
     }
 
     private async refreshNonce() {
-        const nonce = await retryPromise(
-            getNonce(this.address, this.network)
-        );
+        const nonces = await fetchAccountNonces(this.network, this.address);
 
-        if (nonce > this.nonce) {
-            this.nonce = nonce;
+        if (nonces.possible_next_nonce > this.nonce) {
+            this.nonce = nonces.possible_next_nonce;
         }
+        console.info(nonces)
+        if (nonces.detected_missing_nonces.length > 0) {
+            this.hasMissingNonce = true;
+            console.warn("Detected missing nonces");
+            console.table(nonces.detected_missing_nonces);
+
+            nonces.detected_missing_nonces.forEach((missing_nonce: bigint) => {
+                if (missing_nonce < this.nonce) {
+                    this.nonce = missing_nonce;
+                }
+            });
+        } else {
+            this.hasMissingNonce = false;
+        }
+
     }
 
     private async refreshPendingTx() {
@@ -83,7 +101,7 @@ export class Executor {
 
         console.info(`${this.address}: ${this.pendingTxs} pending TX, next nonce: ${this.nonce}`)
 
-        while (this.pendingTxs < this.maxPendingTx) {
+        while (this.pendingTxs < this.maxPendingTx || this.hasMissingNonce) {
             console.info("Preparing new batch")
             const newBatch = await getNextBatch(this.batchSize)
 
@@ -95,9 +113,8 @@ export class Executor {
             const newTransaction = await this.createTransaction(newBatch);
 
             console.info("Sending new transaction...")
-            const result = await retryPromise(
-                broadcastTransaction(newTransaction, this.network)
-            );
+            const result = await retryPromise(broadcastTransaction(newTransaction, this.network));
+            console.info(result)
 
             await sleep(3000);
             await this.refreshPendingTx();

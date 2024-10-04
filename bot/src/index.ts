@@ -41,9 +41,9 @@ const main = async () => {
         network: network,
         signer: signer,
         accountId: 0,
-        fee: 250,
+        fee: 500000,
         maxPendigTx: 3,
-        batchSize: 8000
+        batchSize: 14995
     });
 
     api.subscribeBlocks(async (_) => {
