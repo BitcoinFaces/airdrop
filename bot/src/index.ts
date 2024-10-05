@@ -45,10 +45,14 @@ const main = async () => {
         signer: signer,
         accountId: 0,
         fee: 500000,
-        maxPendingTx: 3,
+        maxPendingTx: 1,
         batchSize: 14995
     });
 
+    // run once before waiting for blocks
+    await executor.run();
+
+    // kick off every new block
     api.subscribeBlocks(async (_) => {
         await executor.run()
     });

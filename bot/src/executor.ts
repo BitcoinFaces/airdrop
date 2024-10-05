@@ -96,9 +96,13 @@ export class Executor {
         return newTransaction
     }
 
-    async run() {
+    async run(overrideNonce = -1) {
         await this.refreshPendingTx();
-        await this.refreshNonce();
+        if (overrideNonce != -1) {
+            this.nonce = BigInt(overrideNonce);
+        } else {
+            await this.refreshNonce();
+        }
 
         console.info(`- Pending TX: ${this.pendingTxs}`)
         console.info(`- Next nonce: ${this.nonce}`)
