@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 
-const CONTRACT = "nft";
+const CONTRACT = "aibtcdev-airdrop-1";
 
 const getLastTokenId = () => {
   return simnet.callReadOnlyFn(CONTRACT, "get-last-token-id", [], simnet.deployer).result

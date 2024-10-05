@@ -83,7 +83,7 @@ export class Executor {
         const newTransaction = makeContractCall({
             network: this.network,
             contractAddress: this.address,
-            contractName: "nft",
+            contractName: "aibtcdev-airdrop-1",
             functionName: "airdrop",
             functionArgs: [newBatch.l1, newBatch.l2, newBatch.l3],
             postConditionMode: PostConditionMode.Deny,
