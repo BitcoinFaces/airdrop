@@ -6,8 +6,8 @@
     "author": "lnow",
     "private": true,
     "scripts": {
-        "build": "bun build src/index.ts esbuild.config.js",
-        "start": "yarn build && node target/index.js --trace-warnings",
+        "build": "bun build src/index.ts --target=bun --outdir=target",
+        "start": "bun run build && bun run target/index.js --trace-warnings",
         "check": "bun biome check ./src",
         "fmt": "bun biome format --write ./src",
         "lint": "bun biome lint --write ./src"
