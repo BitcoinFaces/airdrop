@@ -8,7 +8,9 @@
     "scripts": {
         "build": "bun build src/index.ts esbuild.config.js",
         "start": "yarn build && node target/index.js --trace-warnings",
-        "check": "bun biome check"
+        "check": "bun biome check ./src",
+        "fmt": "bun biome format --write ./src",
+        "lint": "bun biome lint --write ./src"
     },
     "dependencies": {
         "@stacks/blockchain-api-client": "8.0.3",
