@@ -6,12 +6,12 @@
     "author": "lnow",
     "private": true,
     "scripts": {
-        "build": "node esbuild.config.js",
-        "start": "yarn build && node target/index.js --trace-warnings"
+        "build": "bun build src/index.ts esbuild.config.js",
+        "start": "yarn build && node target/index.js --trace-warnings",
+        "check": "bun biome check"
     },
     "dependencies": {
         "@stacks/blockchain-api-client": "8.0.3",
-        "async-mutex": "0.5.0",
         "cross-fetch": "4.0.0",
         "dotenv": "16.0.3",
         "import": "0.0.6",
@@ -19,9 +19,9 @@
         "@stacks/wallet-sdk": "^6.16.1"
     },
     "devDependencies": {
+        "@biomejs/biome": "1.9.3",
         "@stacks/stacks-blockchain-api-types": "7.1.2",
         "esbuild": "^0.24.0",
-        "eslint": "^9.11.1",
         "typescript": "^5.6.2"
     }
 }
