@@ -141,14 +141,23 @@ export class Executor {
             );
 
             console.info(`- TXID: ${result.txid}`);
-            console.info("- Updating source.csv and done.csv files...");
 
-            await writeDone(newBatch.done);
-            await writeSource(newBatch.pending);
+            if (typeof result.error === "string") {
+                console.error(
+                    `Failed to broadcast transaction due to: ${result.error} because ${result.reason}`,
+                );
+                console.error("Will try again in 60s");
 
-            await sleep(3000);
-            await this.refreshPendingTx();
-            await this.refreshNonce();
+                await sleep(60000);
+            } else {
+                console.info("- Updating source.csv and done.csv files...");
+                await writeDone(newBatch.done);
+
+                await writeSource(newBatch.pending);
+                await sleep(3000);
+                await this.refreshPendingTx();
+                await this.refreshNonce();
+            }
         }
     }
 }
