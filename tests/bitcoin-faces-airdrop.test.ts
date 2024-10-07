@@ -73,13 +73,13 @@ describe("mint", () => {
   it("succeeds when called by anyone via proxy contract deployed by same address as NFT contract deployer", () => {
     const t1 = tx.callPublicFn(
       "proxy",
-      "mint",
+      "mint-bitcoin-faces",
       [principalCV(address1)],
       address1
     );
     const t2 = tx.callPublicFn(
       "proxy",
-      "mint",
+      "mint-bitcoin-faces",
       [principalCV(address1)],
       simnet.deployer
     );
@@ -96,13 +96,13 @@ describe("mint", () => {
   it("fails when called by anyone via proxy contract deployed by different address than NFT contract deployer", () => {
     const t1 = tx.callPublicFn(
       `${address1}.external-proxy`,
-      "mint",
+      "mint-bitcoin-faces",
       [principalCV(address1)],
       address1
     );
     const t2 = tx.callPublicFn(
       `${address1}.external-proxy`,
-      "mint",
+      "mint-bitcoin-faces",
       [principalCV(address1)],
       simnet.deployer
     );
