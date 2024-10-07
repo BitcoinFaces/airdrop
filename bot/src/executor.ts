@@ -115,6 +115,7 @@ export class Executor {
     async run(overrideNonce = -1) {
         await this.refreshPendingTx();
         if (overrideNonce !== -1) {
+            console.info(`- Using custom nonce: ${overrideNonce}`);
             this.nonce = BigInt(overrideNonce);
         } else {
             await this.refreshNonce();
@@ -124,8 +125,8 @@ export class Executor {
         console.info(`- Next nonce: ${this.nonce}`);
 
         console.info("STARTING AIRDROP LOOP");
-        while (this.pendingTxs < this.maxPendingTx || this.hasMissingNonce) {
-            console.info("Preparing new batch");
+        while (this.pendingTxs < this.maxPendingTx || this.hasMissingNonce || overrideNonce !== -1) {
+            console.info("- Preparing new batch");
             const newBatch = await getNextBatch(this.batchSize);
 
             if (newBatch.total === 0) {
@@ -136,6 +137,8 @@ export class Executor {
             const newTransaction = await this.createTransaction(newBatch.lists);
 
             console.info("- Sending new transaction...");
+            // console.info("- Pausing for 30sec...");
+            // await sleep(30000);
             const result = await retryPromise(
                 broadcastTransaction(newTransaction, this.network),
             );
