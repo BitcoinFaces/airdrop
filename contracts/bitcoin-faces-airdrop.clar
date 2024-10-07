@@ -4,24 +4,27 @@
 
 (define-data-var nextId uint u1)
 
-(define-data-var urlBase (string-ascii 128) "https://bitcoinfaces.xyz/api/")
+(define-data-var urlBase (string-ascii 128) "https://bitcoinfaces.xyz/api/get-image")
 (define-data-var urlParam (string-ascii 128) "?name=")
 
 ;; trying something creative here
 (define-data-var url (string-ascii 256) (concat (var-get urlBase) (var-get urlParam)))
 
 ;; to store addresses by nft id
+;; maybe this is where we put the buff?
 (define-map Addresses uint principal)
 
 (define-non-fungible-token bitcoin-faces uint)
 
 (define-read-only (get-last-token-id) (ok (- (var-get nextId) u1)))
 
-;; one way to concat and get the optional
+;; one way to concat and get the optional is as-max-len?
 ;; but feels like it exposes weird issues with long strings
 ;; TODO: can we compute longest string length of Stacks address
 ;; and check that against what's being set for the url values?
-(define-read-only (get-token-uri (id uint)) (ok (as-max-len? (concat (var-get url) (int-to-ascii id)) u256)))
+(define-read-only (get-token-uri (id uint))
+  (ok (as-max-len? (concat (var-get url) (int-to-ascii id)) u256))
+)
 
 (define-read-only (get-owner (id uint)) (ok (nft-get-owner? bitcoin-faces id)))
 

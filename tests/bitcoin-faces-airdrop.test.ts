@@ -4,6 +4,8 @@ import {
   noneCV,
   principalCV,
   someCV,
+  stringAsciiCV,
+  stringCV,
   uintCV,
 } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
@@ -154,5 +156,37 @@ describe("transfer", () => {
 
     expect(getOwner(1)).toBeOk(someCV(principalCV(to)));
     expect(getOwner(2)).toBeOk(someCV(principalCV(from)));
+  });
+
+  it("returns the correct URL for the NFT", () => {
+    const account1 = accounts.get("wallet_1")!;
+    const account2 = accounts.get("wallet_2")!;
+    const account3 = accounts.get("wallet_3")!;
+    const account4 = accounts.get("wallet_4")!;
+    const account5 = accounts.get("wallet_5")!;
+    const minters = [account1, account2, account3, account4, account5];
+
+    simnet.mineBlock([
+      mint(account1),
+      mint(account2),
+      mint(account3),
+      mint(account4),
+      mint(account5),
+    ]);
+
+    const results = minters.map(
+      (minter, i) =>
+        simnet.callReadOnlyFn(
+          CONTRACT,
+          "get-token-uri",
+          [uintCV(i + 2)],
+          minter
+        ).result
+    );
+
+    results.forEach((result, i) => {
+      const expectedResult = `https://bitcoinfaces.xyz/api/get-image?name=${minters[i]}`;
+      expect(result).toBeOk(someCV(stringAsciiCV(expectedResult)));
+    });
   });
 });
