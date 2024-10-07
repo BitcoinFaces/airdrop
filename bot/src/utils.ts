@@ -10,7 +10,11 @@ export const retryPromise = async <T>(
 		console.info(`- Error: ${String(err)}`);
 		await new Promise((resolve) => setTimeout(resolve, delay));
 		if (maxTries === 0) {
-			throw new Error(err.message);
+			console.log("- Max retries reached");
+			if (err instanceof Error) {
+				throw err;
+			}
+			throw new Error(String(err));
 		}
 		const newLimit = maxTries - 1;
 		return await retryPromise(fn, newLimit, delay + 500);
