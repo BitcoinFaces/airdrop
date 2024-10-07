@@ -13,6 +13,11 @@ path = 'contracts/aibtcdev-airdrop-1.clar'
 clarity_version = 2
 epoch = 2.5
 
+[contracts.bitcoin-faces-airdrop]
+path = 'contracts/bitcoin-faces-airdrop.clar'
+clarity_version = 2
+epoch = 2.5
+
 [contracts.proxy]
 path = 'contracts/proxy.clar'
 clarity_version = 2
