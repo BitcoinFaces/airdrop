@@ -45,16 +45,17 @@ const main = async () => {
 		network: network,
 		signer: signer,
 		accountId: 0,
-		fee: 500000,
-		maxPendingTx: 1,
-		batchSize: 14995,
+		fee: 1_000_000,
+		maxPendingTx: 24,
+		batchSize: 6000,
 	});
 
 	// run once before waiting for blocks
 	await executor.run();
 
 	// kick off every new block
-	api.subscribeBlocks(async (_) => {
+	api.subscribeBlocks(async (block) => {
+		console.log(`NEW BLOCK: ${block.height}`);
 		await executor.run();
 	});
 };
