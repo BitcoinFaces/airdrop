@@ -14,7 +14,9 @@ import type { ListCV } from "@stacks/transactions";
 import { getStxAddress } from "@stacks/wallet-sdk";
 import { fetchAccountMempoolTransactions, fetchAccountNonces } from "./api";
 import type { Signer } from "./signer";
-import { retryPromise, sleep } from "./utils";
+import { retryPromise, sleep, log as mainLogger } from "./utils";
+
+const log = mainLogger.getSubLogger({ name: "Executor" })
 
 export interface ExecutorConfig {
     network: StacksNetwork;
@@ -50,15 +52,15 @@ export class Executor {
         this.fee = cfg.fee;
         this.maxPendingTx = cfg.maxPendingTx;
         if (cfg.batchSize > 14995) {
-            console.error("batchSize can't be greater than 14995");
+            log.error("batchSize can't be greater than 14995");
             process.exit(1);
         }
         this.batchSize = cfg.batchSize;
 
-        console.info("EXECUTOR CONFIG");
-        console.info(`- Address: ${this.address}`);
-        console.info(`- Fee: ${this.fee} uSTX`);
-        console.info(`- Batch size: ${this.batchSize} TX`);
+        log.info("EXECUTOR CONFIG");
+        log.info(`- Address: ${this.address}`);
+        log.info(`- Fee: ${this.fee} uSTX`);
+        log.info(`- Batch size: ${this.batchSize} TX`);
     }
 
     private async refreshNonce() {
@@ -70,8 +72,8 @@ export class Executor {
 
         if (nonces.detected_missing_nonces.length > 0) {
             this.hasMissingNonce = true;
-            console.warn("Detected missing nonces");
-            console.table(nonces.detected_missing_nonces);
+            log.warn("Detected missing nonces");
+            log.warn(nonces.detected_missing_nonces);
 
             for (const missing_nonce of nonces.detected_missing_nonces) {
                 if (missing_nonce < this.nonce) {
@@ -115,45 +117,45 @@ export class Executor {
     async run(overrideNonce = -1) {
         await this.refreshPendingTx();
         if (overrideNonce !== -1) {
-            console.info(`- Using custom nonce: ${overrideNonce}`);
+            log.info(`- Using custom nonce: ${overrideNonce}`);
             this.nonce = BigInt(overrideNonce);
         } else {
             await this.refreshNonce();
         }
 
-        console.info(`- Pending TX: ${this.pendingTxs}`);
-        console.info(`- Next nonce: ${this.nonce}`);
+        log.info(`- Pending TX: ${this.pendingTxs}`);
+        log.info(`- Next nonce: ${this.nonce}`);
 
-        console.info("STARTING AIRDROP LOOP");
+        log.info("STARTING AIRDROP LOOP");
         while (this.pendingTxs < this.maxPendingTx || this.hasMissingNonce || overrideNonce !== -1) {
-            console.info("- Preparing new batch");
+            log.info("- Preparing new batch");
             const newBatch = await getNextBatch(this.batchSize);
 
             if (newBatch.total === 0) {
-                console.info("AIRDROP COMPLETE!");
+                log.info("AIRDROP COMPLETE!");
                 break;
             }
 
             const newTransaction = await this.createTransaction(newBatch.lists);
 
-            console.info("- Sending new transaction...");
-            // console.info("- Pausing for 30sec...");
+            log.info("- Sending new transaction...");
+            // log.info("- Pausing for 30sec...");
             // await sleep(30000);
             const result = await retryPromise(
                 broadcastTransaction(newTransaction, this.network),
             );
 
-            console.info(`- TXID: ${result.txid}`);
+            log.info(`- TXID: ${result.txid}`);
 
             if (typeof result.error === "string") {
-                console.error(
+                log.error(
                     `Failed to broadcast transaction due to: ${result.error} because ${result.reason}`,
                 );
-                console.error("Will try again in 60s");
+                log.error("Will try again in 60s");
 
                 await sleep(60000);
             } else {
-                console.info("- Updating source.csv and done.csv files...");
+                log.info("- Updating source.csv and done.csv files...");
                 await writeDone(newBatch.done);
 
                 await writeSource(newBatch.pending);
@@ -177,7 +179,7 @@ async function readSource(maxLines: number) {
         lines.push(line);
     }
     lineReader.close();
-    console.info(`- Read ${lines.length} addresses from source file`);
+    log.info(`- Read ${lines.length} addresses from source file`);
 
     return lines;
 }
@@ -248,7 +250,7 @@ async function getNextBatch(size: number) {
         }
     }
 
-    console.info(
+    log.info(
         `- New Batch: L1: ${l1.length}, L2: ${l2.length}, L3: ${l3.length}`,
     );
 
