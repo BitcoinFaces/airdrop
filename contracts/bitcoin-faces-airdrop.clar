@@ -6,7 +6,7 @@
 
 (define-data-var nextId uint u1)
 
-(define-data-var url (string-ascii 256) "https://bitcoinfaces.xyz/api/get-image?name=")
+(define-data-var url (string-ascii 256) "https://bitcoinfaces.xyz/api/get-nft-metadata?hashedName=")
 
 (define-map FirstOwners uint principal)
 

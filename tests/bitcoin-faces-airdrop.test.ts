@@ -1,19 +1,13 @@
-import { Tx, tx } from "@hirosystems/clarinet-sdk";
+import { tx } from "@hirosystems/clarinet-sdk";
 import {
   boolCV,
-  bufferCV,
   cvToHex,
-  encodeClarityValue,
-  encodeStructuredData,
-  hashStructuredData,
   noneCV,
   principalCV,
   someCV,
   stringAsciiCV,
-  stringCV,
   uintCV,
 } from "@stacks/transactions";
-import { stringify } from "@stacks/transactions/dist/cl";
 import { describe, expect, it } from "vitest";
 
 const accounts = simnet.getAccounts();
@@ -187,14 +181,13 @@ describe("get-token-uri", () => {
     ]);
 
     const results = minters.map(
-      (minter, i) =>
+      (_, i) =>
         getTokenUri(i + 1)
     );
 
     results.forEach((result, i) => {
       const hash = cvToHex(principalCV(minters[i]))
-
-      const expectedResult = `https://bitcoinfaces.xyz/api/get-image?name=${hash}`;
+      const expectedResult = `https://bitcoinfaces.xyz/api/get-nft-metadata?hashedName=${hash}`;
       expect(result).toBeOk(someCV(stringAsciiCV(expectedResult)));
     });
   });
@@ -223,14 +216,13 @@ describe("get-token-uri", () => {
     ])
 
     const results = minters.map(
-      (minter, i) =>
+      (_, i) =>
         getTokenUri(i + 1)
     );
 
     results.forEach((result, i) => {
       const hash = cvToHex(principalCV(minters[i]))
-
-      const expectedResult = `https://bitcoinfaces.xyz/api/get-image?name=${hash}`;
+      const expectedResult = `https://bitcoinfaces.xyz/api/get-nft-metadata?hashedName=${hash}`;
       expect(result).toBeOk(someCV(stringAsciiCV(expectedResult)));
     });
   });
