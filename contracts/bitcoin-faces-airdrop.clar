@@ -40,7 +40,10 @@
 
 (define-public (burn (id uint) (from principal))
   (if (or (is-eq from tx-sender) (is-eq from contract-caller))
-    (nft-burn? bitcoin-faces id from)
+    (begin
+      (map-insert FirstOwners id from)
+      (nft-burn? bitcoin-faces id from)
+    )
     (err u4)
   )
 )
