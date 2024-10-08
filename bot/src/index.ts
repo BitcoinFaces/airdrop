@@ -46,9 +46,9 @@ const main = async () => {
     const executor = new Executor({
         network: network,
         signer: signer,
-        accountId: 0,
-        fee: 1_000_000,
-        maxPendingTx: 24,
+        accountId: 1,
+        fee: 750_000,
+        maxPendingTx: 3, // since only 2 can process per block max
         batchSize: 6000,
     });
 
