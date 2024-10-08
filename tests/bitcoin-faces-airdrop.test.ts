@@ -1,6 +1,11 @@
 import { Tx, tx } from "@hirosystems/clarinet-sdk";
 import {
   boolCV,
+  bufferCV,
+  cvToHex,
+  encodeClarityValue,
+  encodeStructuredData,
+  hashStructuredData,
   noneCV,
   principalCV,
   someCV,
@@ -8,6 +13,7 @@ import {
   stringCV,
   uintCV,
 } from "@stacks/transactions";
+import { stringify } from "@stacks/transactions/dist/cl";
 import { describe, expect, it } from "vitest";
 
 const accounts = simnet.getAccounts();
@@ -45,6 +51,10 @@ const transfer = (id: number, from: string, to: string, sender: string) => {
 const mint = (to: string, sender: string | string = simnet.deployer) => {
   return tx.callPublicFn(CONTRACT, "mint", [principalCV(to)], sender);
 };
+
+const getTokenUri = (id: number) => {
+  return simnet.callReadOnlyFn(CONTRACT, "get-token-uri", [uintCV(id)], simnet.deployer).result
+}
 
 describe("get-last-token-id", () => {
   it("returns 0 after deployment", () => {
@@ -157,7 +167,9 @@ describe("transfer", () => {
     expect(getOwner(1)).toBeOk(someCV(principalCV(to)));
     expect(getOwner(2)).toBeOk(someCV(principalCV(from)));
   });
+});
 
+describe("get-token-uri", () => {
   it("returns the correct URL for the NFT", () => {
     const account1 = accounts.get("wallet_1")!;
     const account2 = accounts.get("wallet_2")!;
@@ -176,17 +188,50 @@ describe("transfer", () => {
 
     const results = minters.map(
       (minter, i) =>
-        simnet.callReadOnlyFn(
-          CONTRACT,
-          "get-token-uri",
-          [uintCV(i + 2)],
-          minter
-        ).result
+        getTokenUri(i + 1)
     );
 
     results.forEach((result, i) => {
-      const expectedResult = `https://bitcoinfaces.xyz/api/get-image?name=${minters[i]}`;
+      const hash = cvToHex(principalCV(minters[i]))
+
+      const expectedResult = `https://bitcoinfaces.xyz/api/get-image?name=${hash}`;
       expect(result).toBeOk(someCV(stringAsciiCV(expectedResult)));
     });
   });
-});
+
+  it("returns the correct URL for the NFT after transfer", () => {
+    const account1 = accounts.get("wallet_1")!;
+    const account2 = accounts.get("wallet_2")!;
+    const account3 = accounts.get("wallet_3")!;
+    const account4 = accounts.get("wallet_4")!;
+    const account5 = accounts.get("wallet_5")!;
+    const minters = [account1, account2, account3, account4, account5];
+
+    simnet.mineBlock([
+      mint(account1),
+      mint(account2),
+      mint(account3),
+      mint(account4),
+      mint(account5),
+    ]);
+
+    simnet.mineBlock([
+      transfer(1, account1, account2, account1),
+      transfer(2, account2, account1, account2),
+      transfer(2, account1, account3, account1),
+      transfer(4, account4, account1, account4),
+    ])
+
+    const results = minters.map(
+      (minter, i) =>
+        getTokenUri(i + 1)
+    );
+
+    results.forEach((result, i) => {
+      const hash = cvToHex(principalCV(minters[i]))
+
+      const expectedResult = `https://bitcoinfaces.xyz/api/get-image?name=${hash}`;
+      expect(result).toBeOk(someCV(stringAsciiCV(expectedResult)));
+    });
+  });
+})
