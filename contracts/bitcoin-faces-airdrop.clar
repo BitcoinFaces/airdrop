@@ -85,3 +85,6 @@
 (define-read-only (get-first-owner-buff (id uint))
   (unwrap-panic (match (get-first-owner id) addr (to-consensus-buff? addr) (some 0x)))
 )
+
+(nft-mint? bitcoin-faces u0 (as-contract tx-sender))
+(as-contract (transfer u0 tx-sender DEPLOYER))
