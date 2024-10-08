@@ -149,7 +149,7 @@ export class Executor {
 
             if (typeof result.error === "string") {
                 log.error(
-                    `Failed to broadcast transaction due to: ${result.error} because ${result.reason}`,
+                    `Failed to broadcast TX ${newTransaction.txid()} due to: ${result.error} because ${result.reason}`,
                 );
                 log.error("Will try again in 60s");
 
