@@ -6,11 +6,7 @@
 
 (define-data-var nextId uint u1)
 
-(define-data-var urlBase (string-ascii 128) "https://bitcoinfaces.xyz/api/get-image")
-(define-data-var urlParam (string-ascii 128) "?name=")
-
-;; trying something creative here
-(define-data-var url (string-ascii 256) (concat (var-get urlBase) (var-get urlParam)))
+(define-data-var url (string-ascii 256) "https://bitcoinfaces.xyz/api/get-image?name=")
 
 (define-map FirstOwners uint principal)
 
@@ -56,9 +52,9 @@
   )
 )
 
-(define-public (set-url (base (string-ascii 128)) (param (string-ascii 128)))
+(define-public (set-url (new (string-ascii 256)))
   (if (is-eq DEPLOYER (get-standard-caller))
-    (ok (and (var-set urlBase base) (var-set urlParam param)))
+    (ok (var-set url new))
     (err u401)
   )
 )
