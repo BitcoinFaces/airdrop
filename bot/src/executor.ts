@@ -127,6 +127,10 @@ export class Executor {
         log.info(`- Next nonce: ${this.nonce}`);
 
         log.info("STARTING AIRDROP LOOP");
+        if (this.pendingTxs >= this.maxPendingTx) {
+            log.debug("- Max pending transactions reached, waiting for next block...");
+            return;
+        }
         while (this.pendingTxs < this.maxPendingTx || this.hasMissingNonce || overrideNonce !== -1) {
             log.info("- Preparing new batch");
             const newBatch = await getNextBatch(this.batchSize);
